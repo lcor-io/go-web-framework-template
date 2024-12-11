@@ -1,0 +1,9 @@
+# Build files
+node_modules/
+dist
+tmp
+src/**/*_templ.go
+
+# Packages related
+go.sum
+*-lock.yaml
