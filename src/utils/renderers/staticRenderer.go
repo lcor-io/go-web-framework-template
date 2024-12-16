@@ -42,7 +42,7 @@ func WithRevalidateTag(tag string) staticRenderOptFunc {
 	}
 }
 
-func withTemplHandlers(handlers ...func(*templ.ComponentHandler)) staticRenderOptFunc {
+func WithTemplHandlers(handlers ...func(*templ.ComponentHandler)) staticRenderOptFunc {
 	return func(o *StaticRenderOpts) {
 		o.templHandlers = append(o.templHandlers, handlers...)
 	}
