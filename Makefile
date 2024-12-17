@@ -6,7 +6,7 @@ live/templ:
 live/server:
 	go run github.com/cosmtrek/air@v1.52.0 \
 		--build.cmd "go build -o ./dist/main ./src/main.go && cp -r ./static ./dist" \
-		--build.bin "cd dist && ./main" \
+		--build.bin "cd dist && ENV=development ./main" \
 		--build.delay "100" \
 		--build.exclude_dir "assets,tmp,vendor,testdata,dist,static,node_modules" \
 		--build.include_ext "go" \
