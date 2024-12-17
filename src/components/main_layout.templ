@@ -1,4 +1,4 @@
-package app
+package components
 
 templ MainLayout(title string) {
 	<!DOCTYPE html>
@@ -12,7 +12,15 @@ templ MainLayout(title string) {
 			<script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
 		</head>
 		<body data-theme="main">
-			{ children... }
+			<nav class="w-full bg-teal-100" hx-boost="true">
+				<ul class="flex flex-row gap-2 items-center">
+					<li><a href="/page-1" hx-target="#content">Page 1</a></li>
+					<li><a href="/page-2" hx-target="#content">Page 2</a></li>
+				</ul>
+			</nav>
+			<div id="content">
+				{ children... }
+			</div>
 		</body>
 	</html>
 }

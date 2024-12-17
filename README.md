@@ -12,17 +12,22 @@ As of now, it supports Static Page Generation and Dynamic Rendering with two dif
     go mod tidy
     pnpm install  # Or whatever package manager you are using
 
-## Development
+## Launch
 Hot reloading should launch automatically in the browser.
 
     make live
     
-To cleanup build files
+To cleanup build files after dev
 
     make clean
 
 ## TODOS
 
- - [ ] More route examples, with both SSG and Dynamic rendering
+ - [x] ~~More route examples, with both SSG and Dynamic rendering~~
  - [ ] Example of a Templ component using htmx
- - [ ] Initial parameters at build time
+ - [ ] Initial properties at build time
+ - [ ] Dynamic routing system using FS ?
+ - [ ] Persistent cache files between restarts. Dig into Fiber cache middleware
+ - [ ] Layout composition on children
+ - [ ] i18n
+ - [ ] Add template to be "PWA ready"
