@@ -28,4 +28,6 @@ To cleanup build files after dev
  - [ ] Initial properties at build time
  - [ ] Dynamic routing system using FS ?
  - [ ] Persistent cache files between restarts. Dig into Fiber cache middleware
+ - [ ] Layout composition on children
+ - [ ] i18n
  - [ ] Add template to be "PWA ready"

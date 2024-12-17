@@ -12,7 +12,6 @@ import (
 
 	root "default.app/src/app"
 	"default.app/src/utils"
-	renderers "default.app/src/utils/renderers"
 )
 
 func main() {
@@ -60,9 +59,10 @@ func main() {
 		})
 	}
 
-	app.Get("/", func(c fiber.Ctx) error {
-		return renderers.StaticRender(&c, root.Index())
-	})
+	/***
+	 * Register the routes
+	 ***/
+	root.RegisterRoutes(app)
 
 	log.Fatal(app.Listen(":42068", fiber.ListenConfig{
 		EnablePrintRoutes: os.Getenv("ENV") == "development",

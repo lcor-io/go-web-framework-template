@@ -1,4 +1,4 @@
-package utils
+package renderers
 
 import (
 	"context"
@@ -13,42 +13,42 @@ import (
 	"default.app/src/utils"
 )
 
-type StaticRenderOpts struct {
+type RenderOpts struct {
 	revalidate    time.Duration // Used to set the Cache-Control max-age and stale-while-revalidate directives
 	revalidateTag string        // Used to invalidate this specific route
 
-	templHandlers []func(*templ.ComponentHandler) // Handlers to apply to the component
+	ctx context.Context // Context used to render the component
 }
 
-type staticRenderOptFunc func(*StaticRenderOpts)
+type renderOptFunc func(*RenderOpts)
 
-func defaultOpts() StaticRenderOpts {
-	return StaticRenderOpts{
-		revalidate:    time.Second * 60 * 60 * 24 * 30,   // 30 days
-		revalidateTag: "",                                // No tag
-		templHandlers: []func(*templ.ComponentHandler){}, // No handlers
+func defaultOpts() RenderOpts {
+	return RenderOpts{
+		revalidate:    time.Second * 60 * 60 * 24 * 30, // 30 days
+		revalidateTag: "",                              // No tag
+		ctx:           context.Background(),
 	}
 }
 
-func WithRevalidate(revalidate time.Duration) staticRenderOptFunc {
-	return func(o *StaticRenderOpts) {
+func WithContext(ctx context.Context) renderOptFunc {
+	return func(o *RenderOpts) {
+		o.ctx = ctx
+	}
+}
+
+func WithRevalidate(revalidate time.Duration) renderOptFunc {
+	return func(o *RenderOpts) {
 		o.revalidate = revalidate
 	}
 }
 
-func WithRevalidateTag(tag string) staticRenderOptFunc {
-	return func(o *StaticRenderOpts) {
+func WithRevalidateTag(tag string) renderOptFunc {
+	return func(o *RenderOpts) {
 		o.revalidateTag = tag
 	}
 }
 
-func WithTemplHandlers(handlers ...func(*templ.ComponentHandler)) staticRenderOptFunc {
-	return func(o *StaticRenderOpts) {
-		o.templHandlers = append(o.templHandlers, handlers...)
-	}
-}
-
-func StaticRender(c *fiber.Ctx, component templ.Component, opts ...staticRenderOptFunc) error {
+func StaticRender(c *fiber.Ctx, component templ.Component, opts ...renderOptFunc) error {
 	/***
 	* Apply options to the renderer
 	***/
@@ -61,7 +61,7 @@ func StaticRender(c *fiber.Ctx, component templ.Component, opts ...staticRenderO
 	 * Serve file dynamically in development
 	 ***/
 	if os.Getenv("ENV") == "development" {
-		return DynamicRender(c, component, opt.templHandlers...)
+		return DynamicRender(c, component, opts...)
 	}
 
 	/***
@@ -70,20 +70,20 @@ func StaticRender(c *fiber.Ctx, component templ.Component, opts ...staticRenderO
 	f, err := utils.CacheManager.GetRouteFile((*c).Path(), opt.revalidate, opt.revalidateTag)
 	if err != nil {
 		log.Warnf("Could not create cache file, render component dynamically: %v", err)
-		return DynamicRender(c, component, opt.templHandlers...)
+		return DynamicRender(c, component, opts...)
 	}
 	defer f.Close()
 
 	stat, err := f.Stat()
 	if err != nil {
-		return DynamicRender(c, component, opt.templHandlers...)
+		return DynamicRender(c, component, opts...)
 	}
 
 	if stat.Size() == 0 {
-		err = component.Render(context.Background(), f)
+		err = component.Render(opt.ctx, f)
 		if err != nil {
 			log.Warnf("Could not create cache file, render component dynamically: %v", err)
-			return DynamicRender(c, component, opt.templHandlers...)
+			return DynamicRender(c, component, opts...)
 		}
 	}
 

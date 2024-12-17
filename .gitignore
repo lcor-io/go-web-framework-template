@@ -3,6 +3,7 @@ node_modules/
 dist
 tmp
 src/**/*_templ.go
+src/**/*_templ.txt
 
 # Packages related
 go.sum
