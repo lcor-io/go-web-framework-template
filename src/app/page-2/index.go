@@ -19,6 +19,6 @@ func RegisterRoute(router fiber.Router) {
 
 		// But if JS is not enabled, we can still render the full page
 		childContext := templ.WithChildren(ctx.Context(), Index())
-		return renderers.StaticRender(&ctx, components.MainLayout("Page 2"), renderers.WithContext(childContext))
+		return renderers.StaticRender(&ctx, components.MainLayout(), renderers.WithContext(childContext))
 	})
 }
