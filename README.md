@@ -24,7 +24,7 @@ To cleanup build files after dev
 ## TODOS
 
  - [x] ~~More route examples, with both SSG and Dynamic rendering~~
- - [ ] Example of a Templ component using htmx
+ - [x] ~~Example of a Templ component using htmx~~
  - [ ] Initial properties at build time
  - [ ] Dynamic routing system using FS ?
  - [ ] Persistent cache files between restarts. Dig into Fiber cache middleware
