@@ -1,20 +1,19 @@
 package components
 
-templ MainLayout(title string) {
+templ MainLayout() {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<meta http-equib="X-UA-Compatible" content="ie-edge"/>
-			<title>{ title }</title>
 			<link href="/static/css/styles.css" rel="stylesheet"/>
 			<script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
 		</head>
 		<body data-theme="main">
-			<nav class="w-full bg-teal-100" hx-boost="true">
-				<ul class="flex flex-row gap-2 items-center">
-					<li><a href="/page-1" hx-target="#content">Page 1</a></li>
+			<nav class="w-full p-5 shadow" hx-boost="true">
+				<ul class="flex flex-row gap-5 items-center">
+					<li><a href="/page-1" hx-target="#content">Tab example</a></li>
 					<li><a href="/page-2" hx-target="#content">Page 2</a></li>
 				</ul>
 			</nav>

@@ -11,13 +11,14 @@ import (
 )
 
 func RegisterRoutes(app *fiber.App) {
-	// Middleware to check if the request is an htmx request, and is eventually boosted
+	// Middleware to check if the request is coming from HTMX, and is eventually boosted.
+	// Store the result in the context locals
 	app.Use(func(c fiber.Ctx) error {
-		isHTMXRequest, _ := strconv.ParseBool(c.Get("hx-request"))
-		isBoosted, _ := strconv.ParseBool(c.Get("hx-boosted"))
+		isHTMXRequest, errHtmx := strconv.ParseBool(c.Get("hx-request"))
+		isBoosted, errBoosted := strconv.ParseBool(c.Get("hx-boosted"))
 
-		c.Locals("isHTMXRequest", isHTMXRequest)
-		c.Locals("isBoosted", isBoosted)
+		c.Locals("isHTMXRequest", errHtmx == nil && isHTMXRequest)
+		c.Locals("isBoosted", errBoosted == nil && isBoosted)
 
 		return c.Next()
 	})

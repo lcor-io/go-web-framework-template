@@ -14,11 +14,21 @@ func RegisterRoute(router fiber.Router) {
 
 		// By leveraging the boot feature in HTMX, we can return only the content of the page and reduce the payload
 		if ok && isBoosted {
-			return renderers.StaticRender(&ctx, Index())
+			return renderers.DynamicRender(&ctx, Index())
 		}
 
 		// But if JS is not enabled, we can still render the full page
 		childContext := templ.WithChildren(ctx.Context(), Index())
-		return renderers.DynamicRender(&ctx, components.MainLayout("Page 1"), renderers.WithContext(childContext))
+		return renderers.DynamicRender(&ctx, components.MainLayout(), renderers.WithContext(childContext))
+	})
+
+	router.Get("/tab1", func(ctx fiber.Ctx) error {
+		return renderers.DynamicRender(&ctx, Tab(1, "Content of tab 1"))
+	})
+	router.Get("/tab2", func(ctx fiber.Ctx) error {
+		return renderers.DynamicRender(&ctx, Tab(2, "Content of tab 2"))
+	})
+	router.Get("/tab3", func(ctx fiber.Ctx) error {
+		return renderers.DynamicRender(&ctx, Tab(3, "Content of tab 3"))
 	})
 }
