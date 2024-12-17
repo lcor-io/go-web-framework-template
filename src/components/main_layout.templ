@@ -14,11 +14,13 @@ templ MainLayout(title string) {
 		<body data-theme="main">
 			<nav class="w-full bg-teal-100" hx-boost="true">
 				<ul class="flex flex-row gap-2 items-center">
-					<li><a href="/page-1">Page 1</a></li>
-					<li><a href="/page-2">Page 2</a></li>
+					<li><a href="/page-1" hx-target="#content">Page 1</a></li>
+					<li><a href="/page-2" hx-target="#content">Page 2</a></li>
 				</ul>
 			</nav>
-			{ children... }
+			<div id="content">
+				{ children... }
+			</div>
 		</body>
 	</html>
 }

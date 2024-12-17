@@ -23,7 +23,7 @@ To cleanup build files after dev
 
 ## TODOS
 
- - [ ] More route examples, with both SSG and Dynamic rendering
+ - [x] ~~More route examples, with both SSG and Dynamic rendering~~
  - [ ] Example of a Templ component using htmx
  - [ ] Initial properties at build time
  - [ ] Dynamic routing system using FS ?
