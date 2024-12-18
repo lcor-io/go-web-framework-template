@@ -2,7 +2,7 @@ package renderers
 
 import (
 	"context"
-	// "os"
+	"os"
 	"strconv"
 	"time"
 
@@ -60,9 +60,9 @@ func StaticRender(c fiber.Ctx, component templ.Component, opts ...renderOptFunc)
 	/***
 	 * Serve file dynamically in development
 	 ***/
-	// if os.Getenv("ENV") == "development" {
-	// 	return DynamicRender(c, component, opts...)
-	// }
+	if os.Getenv("ENV") == "development" {
+		return DynamicRender(c, component, opts...)
+	}
 
 	/***
 	 * Serve static files in production

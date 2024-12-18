@@ -89,11 +89,12 @@ templ Index() {
 	date, _ := time.Parse("2006-01-02", day)
 	forecastImg := GetWeatherIconFromCode(forecast.Daily.Weather_code[index])
 			}}
-			<div class="rounded shadow flex flex-col gap-2 items-center py-2 px-4">
+			<div class="rounded shadow flex flex-col border border-black gap-2 items-center py-2 px-4">
 				<h2 class="font-bold">{ date.Format("Monday 2 January") }</h2>
 				<img src={ "/static/images/weather/" + forecastImg } alt="" height="80" width="80"/>
 				<div>
 					<span>Min: </span>
+					/
 					<span>Max: </span>
 				</div>
 			</div>
