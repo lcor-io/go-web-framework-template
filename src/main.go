@@ -56,7 +56,7 @@ func main() {
 
 	log.Fatal(app.Listen(":42068", fiber.ListenConfig{
 		EnablePrintRoutes: os.Getenv("ENV") == "development",
-		EnablePrefork:     true,
+		// EnablePrefork:     true,
 		OnShutdownSuccess: func() { utils.CacheManager.CleanCache() },
 		OnShutdownError:   func(_ error) { utils.CacheManager.CleanCache() },
 	}))
