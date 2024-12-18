@@ -31,6 +31,20 @@ live:
 	mkdir -p dist
 	make -j4 live/templ live/server live/css live/sync_assets
 
+prod:
+	make clean
+	mkdir -p dist 
+	templ generate
+	make -j2 prod/css prod/build
+	rsync -ar ./static ./dist --exclude "*.css"
+
+prod/css:
+	pnpm build:css
+
+prod/build:
+	go build -o ./dist/main ./src/main.go 
+
+
 .PHONY: clean
 clean:
 	find ./src -name '*templ.go' -type f -delete
