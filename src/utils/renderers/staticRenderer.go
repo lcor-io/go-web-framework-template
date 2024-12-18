@@ -2,7 +2,7 @@ package renderers
 
 import (
 	"context"
-	"os"
+	// "os"
 	"strconv"
 	"time"
 
@@ -48,7 +48,7 @@ func WithRevalidateTag(tag string) renderOptFunc {
 	}
 }
 
-func StaticRender(c *fiber.Ctx, component templ.Component, opts ...renderOptFunc) error {
+func StaticRender(c fiber.Ctx, component templ.Component, opts ...renderOptFunc) error {
 	/***
 	* Apply options to the renderer
 	***/
@@ -60,37 +60,37 @@ func StaticRender(c *fiber.Ctx, component templ.Component, opts ...renderOptFunc
 	/***
 	 * Serve file dynamically in development
 	 ***/
-	if os.Getenv("ENV") == "development" {
-		return DynamicRender(c, component, opts...)
-	}
+	// if os.Getenv("ENV") == "development" {
+	// 	return DynamicRender(c, component, opts...)
+	// }
 
 	/***
 	 * Serve static files in production
 	 ***/
-	f, err := utils.CacheManager.GetRouteFile((*c).Path(), opt.revalidate, opt.revalidateTag)
+	f, err := utils.CacheManager.GetRouteFile(c.Path(), opt.revalidate, opt.revalidateTag)
 	if err != nil {
 		log.Warnf("Could not create cache file, render component dynamically: %v", err)
-		return DynamicRender(c, component, opts...)
+		return DynamicRender(&c, component, opts...)
 	}
 	defer f.Close()
 
 	stat, err := f.Stat()
 	if err != nil {
-		return DynamicRender(c, component, opts...)
+		return DynamicRender(&c, component, opts...)
 	}
 
 	if stat.Size() == 0 {
 		err = component.Render(opt.ctx, f)
 		if err != nil {
 			log.Warnf("Could not create cache file, render component dynamically: %v", err)
-			return DynamicRender(c, component, opts...)
+			return DynamicRender(&c, component, opts...)
 		}
 	}
 
 	cacheAge := time.Now().Sub(stat.ModTime()).Seconds()
 	maxAge := opt.revalidate.Seconds()
 
-	(*c).Set(fiber.HeaderAge, strconv.Itoa(int(cacheAge)))
-	(*c).Set(fiber.HeaderCacheControl, "public, max-age="+strconv.Itoa(int(maxAge)))
-	return (*c).SendFile(f.Name())
+	c.Set(fiber.HeaderAge, strconv.Itoa(int(cacheAge)))
+	c.Set(fiber.HeaderCacheControl, "public, max-age="+strconv.Itoa(int(maxAge)))
+	return c.SendFile(f.Name())
 }

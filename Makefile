@@ -28,7 +28,7 @@ live/sync_assets:
 
 
 live:
-	mkdir -p dist && cp .env dist/.env
+	mkdir -p dist
 	make -j4 live/templ live/server live/css live/sync_assets
 
 .PHONY: clean
