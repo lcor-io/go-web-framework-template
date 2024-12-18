@@ -70,20 +70,20 @@ func StaticRender(c fiber.Ctx, component templ.Component, opts ...renderOptFunc)
 	f, err := utils.CacheManager.GetRouteFile(c.Path(), opt.revalidate, opt.revalidateTag)
 	if err != nil {
 		log.Warnf("Could not create cache file, render component dynamically: %v", err)
-		return DynamicRender(&c, component, opts...)
+		return DynamicRender(c, component, opts...)
 	}
 	defer f.Close()
 
 	stat, err := f.Stat()
 	if err != nil {
-		return DynamicRender(&c, component, opts...)
+		return DynamicRender(c, component, opts...)
 	}
 
 	if stat.Size() == 0 {
 		err = component.Render(opt.ctx, f)
 		if err != nil {
 			log.Warnf("Could not create cache file, render component dynamically: %v", err)
-			return DynamicRender(&c, component, opts...)
+			return DynamicRender(c, component, opts...)
 		}
 	}
 

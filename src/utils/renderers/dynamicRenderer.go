@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
-func DynamicRender(c *fiber.Ctx, component templ.Component, opts ...renderOptFunc) error {
+func DynamicRender(c fiber.Ctx, component templ.Component, opts ...renderOptFunc) error {
 	/***
 	* Apply options to the renderer
 	***/
@@ -14,6 +14,6 @@ func DynamicRender(c *fiber.Ctx, component templ.Component, opts ...renderOptFun
 		fn(&opt)
 	}
 
-	(*c).Set("Content-Type", "text/html")
-	return component.Render(opt.ctx, ((*c).Response().BodyWriter()))
+	c.Set("Content-Type", "text/html")
+	return component.Render(opt.ctx, (c.Response().BodyWriter()))
 }
