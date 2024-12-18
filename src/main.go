@@ -1,28 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/compress"
 	"github.com/gofiber/fiber/v3/middleware/logger"
-	"github.com/joho/godotenv"
 
 	root "default.app/src/app"
 	"default.app/src/utils"
 )
 
 func main() {
-	/***
-	 * Load environment variables from .env file
-	 ***/
-	if err := godotenv.Load(); err != nil {
-		fmtErr := fmt.Errorf("Error loading .env file: %v", err)
-		panic(fmtErr)
-	}
-
 	app := fiber.New(fiber.Config{
 		AppName: "default.app",
 	})
@@ -66,7 +56,7 @@ func main() {
 
 	log.Fatal(app.Listen(":42068", fiber.ListenConfig{
 		EnablePrintRoutes: os.Getenv("ENV") == "development",
-		EnablePrefork:     true,
+		// EnablePrefork:     true,
 		OnShutdownSuccess: func() { utils.CacheManager.CleanCache() },
 		OnShutdownError:   func(_ error) { utils.CacheManager.CleanCache() },
 	}))

@@ -1,7 +1,103 @@
 package page2
 
+import "github.com/go-resty/resty/v2"
+import "time"
+
+type weatherResponse struct {
+	Latitude              float32 `json:"latitude"`
+	Longitude             float32 `json:"longitude"`
+	Generationtime_ms     float64 `json:"generationtime_ms"`
+	Utc_offset_seconds    uint    `json:"utc_offset_seconds"`
+	Timezone              string  `json:"timezone"`
+	Timezone_abbreviation string  `json:"timezone_abbreviation"`
+	Elevation             float32 `json:"elevation"`
+	Daily_units           struct {
+		Time               string `json:"time"`
+		Rain_sum           string `json:"rain_sum"`
+		Temperature_2m_max string `json:"temperature_2m_max"`
+		Temperature_2m_min string `json:"temperature_2m_min"`
+		Weather_code       string `json:"weather_code"`
+	} `json:"daily_units"`
+	Daily struct {
+		Time               []string  `json:"time"`
+		Temperature_2m_max []float32 `json:"temperature_2m_max"`
+		Temperature_2m_min []float32 `json:"temperature_2m_min"`
+		Weather_code       []int     `json:"weather_code"`
+	} `json:"daily"`
+}
+
+var weatherClient = resty.New().SetBaseURL("https://api.open-meteo.com/v1")
+
+func GetWeatherForecast() weatherResponse {
+
+	println("Fetching weather forecast")
+
+	forecast := &weatherResponse{}
+
+	_, err := weatherClient.R().SetQueryParams(map[string]string{
+		"latitude":  "45.76",
+		"longitude": "4.86",
+		"daily":     "temperature_2m_min,temperature_2m_max,weather_code",
+	}).SetResult(forecast).SetHeader("Accept", "application/json").Get("/forecast")
+
+	if err != nil {
+		panic(err)
+	}
+
+	return *forecast
+}
+
+func GetWeatherIconFromCode(code int) string {
+	switch code {
+	case 0:
+		return "clear.png" // Clear
+	case 1, 2, 3:
+		return "partly_cloudy.png" // Partly cloudy
+	case 45, 48:
+		return "foggy.png" // Foggy
+	case 51, 53, 55:
+		return "drizzle.png" // Drizzle
+	case 56, 57:
+		return "drizzle.png" // Freezing drizzle
+	case 61, 63, 65:
+		return "rain.png" // Rain
+	case 66, 67:
+		return "rain.png" // Freezing Rain
+	case 71, 73, 75:
+		return "snow.png" // Snow falls
+	case 77:
+		return "snow_grains.png" // Snow grains
+	case 80, 81, 82:
+		return "rain_shower.png" // Rain showers
+	case 85, 86:
+		return "snow_shower.png" // Snow showers
+	case 95, 96, 99:
+		return "thunder.png" // Thunderstorm
+	default:
+		return "clear.png"
+	}
+}
+
 templ Index() {
-	<title>Page 2</title>
-	<h1 class="text-2xl text-center my-5">Title</h1>
-	<p>This is page 2.</p>
+	{{ forecast := GetWeatherForecast() }}
+	<title>Static weather</title>
+	<h1 class="text-2xl text-center my-5">Static weather example</h1>
+	<p>The following data is only fetched once in Production mode, as we use the static Renderer</p>
+	<div class="flex flex-row flex-wrap justify-between gap-3 mt-5">
+		for index, day := range forecast.Daily.Time {
+			{{
+	date, _ := time.Parse("2006-01-02", day)
+	forecastImg := GetWeatherIconFromCode(forecast.Daily.Weather_code[index])
+			}}
+			<div class="rounded shadow flex flex-col border border-black gap-2 items-center py-2 px-4">
+				<h2 class="font-bold">{ date.Format("Monday 2 January") }</h2>
+				<img src={ "/static/images/weather/" + forecastImg } alt="" height="80" width="80"/>
+				<div>
+					<span>Min: </span>
+					/
+					<span>Max: </span>
+				</div>
+			</div>
+		}
+	</div>
 }
