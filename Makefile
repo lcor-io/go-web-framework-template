@@ -5,7 +5,7 @@ live/templ:
 # Run air to detect any go file changes to re-buid an restart the server
 live/server:
 	go run github.com/cosmtrek/air@v1.52.0 \
-		--build.cmd "go build -o ./dist/main ./src/main.go && cp -r ./static ./dist" \
+		--build.cmd "go run ./cmd/builder.go && mv conf.toml ./dist && go build -o ./dist/main ./src/main.go && cp -r ./static ./dist" \
 		--build.bin "cd dist && ENV=development ./main" \
 		--build.delay "100" \
 		--build.exclude_dir "assets,tmp,vendor,testdata,dist,static,node_modules" \

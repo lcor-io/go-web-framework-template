@@ -3,6 +3,9 @@ package page2
 import "github.com/go-resty/resty/v2"
 import "time"
 
+var revalidate = 60
+var revalidateTags = []string{"weather"}
+
 type weatherResponse struct {
 	Latitude              float32 `json:"latitude"`
 	Longitude             float32 `json:"longitude"`

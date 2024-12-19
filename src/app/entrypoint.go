@@ -1,6 +1,7 @@
 package app
 
 import (
+	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v3"
@@ -29,6 +30,15 @@ func RegisterRoutes(app *fiber.App) {
 			"/": "/page-1",
 		},
 	}))
+
+	files, err := os.ReadDir("./")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, file := range files {
+		println(file.Name())
+	}
 
 	// Register every sub-routes
 	page1.RegisterRoute(app.Group("/page-1"))
