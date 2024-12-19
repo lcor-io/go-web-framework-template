@@ -34,6 +34,8 @@ live:
 prod:
 	make clean
 	mkdir -p dist 
+	go run ./cmd/builder.go
+	mv conf.toml ./dist
 	templ generate
 	make -j2 prod/css prod/build
 	rsync -ar ./static ./dist --exclude "*.css"
