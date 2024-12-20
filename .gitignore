@@ -2,6 +2,7 @@
 node_modules/
 dist
 tmp
+conf.toml
 src/**/*_templ.go
 src/**/*_templ.txt
 

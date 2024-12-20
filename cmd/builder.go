@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io/fs"
 	"os"
 	"path"
@@ -10,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type RouteType string
@@ -29,64 +30,53 @@ type Route struct {
 	Opts RouteOpts
 }
 
-var files []Route
-
-func main() {
-	// Create and truncate the conf file
-	_, err := os.Create("conf.toml")
-	if err != nil {
-		panic(err)
-	}
-	if err := os.Truncate("conf.toml", 0); err != nil {
-		panic(err)
-	}
-
-	path := path.Join("src", "app")
-	walkDir(path)
-
-	// Write the routes to the conf file
-	f, err := os.OpenFile("conf.toml", os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	f.WriteString("# This file is auto-generated - DO NOT EDIT\n\n")
-	for _, file := range files {
-		_, err := f.WriteString(fmt.Sprintf("[%s]\ntype = \"%s\"\nrevalidate = %d\nrevalidateTags = %v\n\n", strings.Join(file.Path, "."), file.Opts.Type, file.Opts.Revalidate, file.Opts.RevalidateTags))
-		if err != nil {
-			panic(err)
-		}
-	}
+type Conf struct {
+	Routes map[string]Route
 }
 
-func walkDir(dirPath string) {
-	filepath.WalkDir(dirPath, func(s string, d fs.DirEntry, e error) error {
+func main() {
+	const fileConfigurationName = "conf"
+	const fileConfigurationType = "toml"
+	const defaultConfPath = "."
+
+	viper.SetConfigName(fileConfigurationName)
+	viper.SetConfigType(fileConfigurationType)
+	viper.AddConfigPath(defaultConfPath)
+
+	const basePath = "src/app/"
+
+	filepath.WalkDir(basePath, func(s string, d fs.DirEntry, e error) error {
 		if e != nil {
 			panic(e)
 		}
 
-		// Add files if they have the .templ extension
-		if filepath.Ext(d.Name()) == ".templ" {
-
-			filePath := strings.Replace(s, path.Join("src", "app"), "", 1)
-			filePath = strings.Replace(s, ".templ", "", 1)
-			filePathExploded := strings.Split(filePath, "/")
-			filePathExploded = filePathExploded[2:]
-
-			fileOpts := getOptsFromFile(s)
-
-			files = append(files, Route{
-				Path: filePathExploded,
-				Opts: fileOpts,
-			})
+		// Ignore files that are not .templ
+		if filepath.Ext(d.Name()) != ".templ" {
+			return nil
 		}
+
+		filePath := strings.Replace(s, basePath, "", 1)
+		filePath = strings.ReplaceAll(filePath, ".templ", "")
+		filePath = strings.ReplaceAll(filePath, "/index", "")
+		filePathExploded := strings.Split(filePath, "/")
+
+		fileOpts := parseOptsFromFile(s)
+
+		routePath := "routes." + strings.Join(filePathExploded, ".")
+		viper.Set(routePath, filePath)
+		viper.Set(routePath+".type", fileOpts.Type)
+		viper.Set(routePath+".revalidate", fileOpts.Revalidate)
+		viper.Set(routePath+".revalidateTags", fileOpts.RevalidateTags)
 
 		return nil
 	})
+
+	if err := viper.WriteConfigAs(path.Join(defaultConfPath, fileConfigurationName+"."+fileConfigurationType)); err != nil {
+		panic(err)
+	}
 }
 
-func getOptsFromFile(filePath string) RouteOpts {
+func parseOptsFromFile(filePath string) RouteOpts {
 	f, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -99,7 +89,7 @@ func getOptsFromFile(filePath string) RouteOpts {
 	opts := RouteOpts{
 		Type:           Static,
 		Revalidate:     time.Second * 60 * 60 * 24 * 30, // 30 days,
-		RevalidateTags: []string{},
+		RevalidateTags: []string{},                      // No tags
 	}
 
 	for fileScanner.Scan() {
@@ -142,6 +132,7 @@ func getRouteRevalidateTags(line string) []string {
 
 	for _, tag := range rawTags {
 		tag = strings.TrimSpace(tag)
+		tag = strings.ReplaceAll(tag, "\"", "")
 		tags = append(tags, tag)
 	}
 
