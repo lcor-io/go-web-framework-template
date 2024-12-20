@@ -10,41 +10,18 @@ import (
 	"strings"
 	"time"
 
+	"default.app/src/utils/config"
 	"github.com/spf13/viper"
 )
 
-type RouteType string
-
-const (
-	Dynamic RouteType = "dynamic"
-	Static  RouteType = "static"
-)
-
-type RouteOpts struct {
-	Type           RouteType
-	Revalidate     time.Duration // Used to set the Cache-Control max-age and stale-while-revalidate directives
-	RevalidateTags []string      // Used to invalidate this specific route
-}
-type Route struct {
-	Path []string
-	Opts RouteOpts
-}
-
-type Conf struct {
-	Routes map[string]Route
-}
-
 func main() {
-	const fileConfigurationName = "conf"
-	const fileConfigurationType = "toml"
-	const defaultConfPath = "."
-
-	viper.SetConfigName(fileConfigurationName)
-	viper.SetConfigType(fileConfigurationType)
-	viper.AddConfigPath(defaultConfPath)
+	viper.SetConfigName(config.ConfigFileName)
+	viper.SetConfigType(config.ConfigFileExtension)
+	viper.AddConfigPath(config.ConfigDefaultPath)
 
 	const basePath = "src/app/"
 
+	// Walk the app directory
 	filepath.WalkDir(basePath, func(s string, d fs.DirEntry, e error) error {
 		if e != nil {
 			panic(e)
@@ -55,6 +32,7 @@ func main() {
 			return nil
 		}
 
+		// Get the path
 		filePath := strings.Replace(s, basePath, "", 1)
 		filePath = strings.ReplaceAll(filePath, ".templ", "")
 		filePath = strings.ReplaceAll(filePath, "/index", "")
@@ -62,6 +40,7 @@ func main() {
 
 		fileOpts := parseOptsFromFile(s)
 
+		// Set config properties
 		routePath := "routes." + strings.Join(filePathExploded, ".")
 		viper.Set(routePath, filePath)
 		viper.Set(routePath+".type", fileOpts.Type)
@@ -71,12 +50,13 @@ func main() {
 		return nil
 	})
 
-	if err := viper.WriteConfigAs(path.Join(defaultConfPath, fileConfigurationName+"."+fileConfigurationType)); err != nil {
+	// Write the configuration file
+	if err := viper.WriteConfigAs(path.Join(config.ConfigDefaultPath, config.ConfigFileName+"."+config.ConfigFileExtension)); err != nil {
 		panic(err)
 	}
 }
 
-func parseOptsFromFile(filePath string) RouteOpts {
+func parseOptsFromFile(filePath string) config.RouteOpts {
 	f, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -86,8 +66,8 @@ func parseOptsFromFile(filePath string) RouteOpts {
 	fileScanner := bufio.NewScanner(f)
 	fileScanner.Split(bufio.ScanLines)
 
-	opts := RouteOpts{
-		Type:           Static,
+	opts := config.RouteOpts{
+		Type:           config.Static,
 		Revalidate:     time.Second * 60 * 60 * 24 * 30, // 30 days,
 		RevalidateTags: []string{},                      // No tags
 	}
@@ -97,7 +77,7 @@ func parseOptsFromFile(filePath string) RouteOpts {
 		if strings.Contains(line, "var revalidate =") {
 			opts.Revalidate = getRouteRevalidate(line)
 			if opts.Revalidate == 0 {
-				opts.Type = Dynamic
+				opts.Type = config.Dynamic
 			}
 		}
 		if strings.Contains(line, "var revalidateTags =") {
