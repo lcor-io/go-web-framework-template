@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"build:css": "@tailwindcss/cli -i static/styles.css -o dist/static/css/styles.css"
+		"build:css": "pnpm dlx @tailwindcss/cli -i static/styles.css -o dist/static/css/styles.css"
 	},
 	"devDependencies": {
 		"@tailwindcss/cli": "^4.0.17",
